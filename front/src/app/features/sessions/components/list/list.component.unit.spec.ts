@@ -7,7 +7,7 @@ import { SessionService } from 'src/app/services/session.service';
 
 import { ListComponent } from './list.component';
 
-describe('ListComponent', () => {
+describe('ListComponent Suite Unit Tests', () => {
   let component: ListComponent;
   let fixture: ComponentFixture<ListComponent>;
 
@@ -21,9 +21,8 @@ describe('ListComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ListComponent],
       imports: [HttpClientModule, MatCardModule, MatIconModule],
-      providers: [{ provide: SessionService, useValue: mockSessionService }]
-    })
-      .compileComponents();
+      providers: [{ provide: SessionService, useValue: mockSessionService }],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ListComponent);
     component = fixture.componentInstance;
@@ -32,5 +31,9 @@ describe('ListComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should have admin privileges', () => {
+    expect(component.user?.admin).toBe(true);
   });
 });

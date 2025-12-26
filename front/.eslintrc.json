@@ -10,8 +10,9 @@
       ],
       "parserOptions": {
         "project": [
-          "tsconfig.json"
+          "./tsconfig.json"
         ],
+        "tsconfigRootDir": "./front",
         "createDefaultProgram": true
       },
       "extends": [
