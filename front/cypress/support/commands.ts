@@ -41,3 +41,39 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+declare namespace Cypress {
+    interface Chainable<Subject = any> {
+        login(admin?: boolean): Chainable<void>;
+    }
+}
+
+Cypress.Commands.add('login', (admin = true) => {
+    cy.visit('/login');
+
+    cy.intercept('POST', '/api/auth/login', {
+        statusCode: 200,
+        body: {
+            token: 'fake-jwt-token',
+            type: 'Bearer',
+            id: admin ? 1 : 2,
+            username: 'userName',
+            firstName: 'firstName',
+            lastName: 'lastName',
+            admin: admin,
+        },
+    }).as('login');
+
+    cy.get('input[formControlName=email]').type(
+        admin ? 'yoga@studio.com' : 'hugo@studio.com'
+    );
+    cy.get('input[formControlName=password]').type(
+        admin ? `${'test!1234'}` : `${'password'}`
+    );
+
+    cy.get('button[type=submit]').click();
+
+    cy.wait('@login');
+
+    cy.url().should('include', '/sessions');
+});

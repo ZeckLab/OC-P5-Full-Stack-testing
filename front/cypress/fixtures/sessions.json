@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "name": "Yoga pour la forme",
+        "description": "Yoga pour la forme",
+        "date": "2026-01-03 12:00:00",
+        "teacher_id": 1
+    },
+    {
+        "id": 2,
+        "name": "Yoga débutant",
+        "description": "Yoga pour les débutants",
+        "date":"2026-01-03 12:00:00",
+        "teacher_id": 2
+    },
+    {
+        "id": 3,
+        "name": "Yoga confirmé",
+        "description": "Yoga pour les confirmés",
+        "date":"2026-01-03 12:00:00",
+        "teacher_id": 2
+    },
+    {
+        "id": 4,
+        "name": "Yoga détente",
+        "description": "Yoga détente",
+        "date": "2026-01-03 12:00:00",
+        "teacher_id": 1
+    }
+]
