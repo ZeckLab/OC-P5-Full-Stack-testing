@@ -1,7 +1,7 @@
 describe('Login spec', () => {
-  it('Login successfull', () => {
-    cy.visit('/login')
-
+  it('should Login successfull', () => {
+    cy.visit('/login');
+    
     cy.intercept('POST', '/api/auth/login', {
       body: {
         id: 1,
@@ -10,18 +10,51 @@ describe('Login spec', () => {
         lastName: 'lastName',
         admin: true
       },
-    })
-
+    }).as('login');
+    
     cy.intercept(
       {
         method: 'GET',
         url: '/api/session',
       },
-      []).as('session')
+      []).as('session');
+      
+    cy.get('input[formControlName=email]').type("yoga@studio.com");
+    cy.get('input[formControlName=password]').type(`${"test!1234"}`);
 
-    cy.get('input[formControlName=email]').type("yoga@studio.com")
-    cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`)
+    cy.get('button[type=submit]').click();
+    
+    cy.wait('@login');
 
-    cy.url().should('include', '/sessions')
-  })
+    cy.url().should('include', '/sessions');
+  });
+
+  it('should display error message on bad credentials', () => {
+    cy.visit('/login');
+    
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 401,
+      body: { message: 'Bad credentials' }
+    }).as('loginError');
+    
+    cy.get('input[formControlName=email]').type("yoga@studio.com");
+    cy.get('input[formControlName=password]').type(`${"badpassword"}`);
+
+    cy.get('button[type=submit]').click();
+    
+    cy.wait('@loginError');
+
+    cy.contains('An error occurred').should('be.visible');
+  });
+
+  it('should mark required fields and keep submit disabled when fields are missing', () => {
+    cy.visit('/login');
+
+    cy.get('input[formControlName=email]').type("yoga@studio.com");
+
+    cy.get('input[formControlName=password]').focus().blur();
+    cy.get('input[formControlName=password]').should('have.class', 'ng-invalid').and('have.class', 'ng-touched');
+
+    cy.get('button[type=submit]').should('be.disabled');
+  });
 });

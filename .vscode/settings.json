@@ -1,0 +1,15 @@
+{
+  "java.jdt.ls.java.home": "C:/Program Files/Java/jdk-11.0.29+7",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-11",
+      "path": "C:/Program Files/Java/jdk-11.0.29+7"
+    }
+  ],
+  "java.configuration.enableAnnotationProcessing": true,
+  "java.project.sourcePaths": [
+    "src/main/java",
+    "target/generated-sources/annotations"
+  ]
+}
+
