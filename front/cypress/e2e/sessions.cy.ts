@@ -72,7 +72,7 @@ describe('Sessions', () => {
         });
 
         it('should display the session detail and click on participate and unparticipate button for non-admin user', () => {
-            // user id 2, not in the users list
+            // Arrange: user id 2, not in the users list
             cy.login(false);
 
             cy.contains('mat-card', 'Yoga débutant').within(() => {
@@ -82,11 +82,12 @@ describe('Sessions', () => {
             cy.wait('@detail');
             cy.wait('@teacher');
 
+            // Act 1: participate
+            // User 2 participates -> user added to the list
             cy.intercept('POST', '/api/session/2/participate/2*', {
                 statusCode: 200,
             }).as('participate');
 
-            // Add the user id 2
             cy.intercept('GET', '/api/session/2*', {
                 id: 2,
                 name: 'Yoga débutant',
@@ -101,7 +102,10 @@ describe('Sessions', () => {
             cy.contains('Participate').should('be.visible');
             cy.contains('Participate').click();
             cy.wait('@participate');
+            cy.wait('@detail');
 
+            // Act 2 : unparticipate
+            // User 2 unparticipates -> user removed from the list
             cy.intercept('DELETE', '/api/session/2/participate/2*', {
                 statusCode: 200,
             }).as('unparticipate');
@@ -121,6 +125,7 @@ describe('Sessions', () => {
             cy.contains('Do not participate').should('be.visible');
             cy.contains('Do not participate').click();
             cy.wait('@unparticipate');
+            cy.wait('@detail');
 
             cy.contains('Participate').should('be.visible');
             cy.contains('Delete').should('not.exist');
@@ -166,6 +171,7 @@ describe('Sessions', () => {
             // Act
             cy.get('input[formControlName=name]').type('Nouveau cours');
             cy.get('input[formControlName=date]').type('2026-01-10');
+            // Select teacher
             cy.get('mat-select[formControlName=teacher_id]').click();
             cy.contains('mat-option', 'Hélène THIERCELIN').click();
             cy.get('textarea[formControlName=description]').type('Cours test');
@@ -190,7 +196,7 @@ describe('Sessions', () => {
             cy.get('mat-select[formControlName=teacher_id]').focus().blur();
             cy.get('textarea[formControlName=description]').focus().blur();
 
-            // Le bouton doit être désactivé car le formulaire est vide
+            // Button should be disabled when form is invalid
             cy.get('button[type=submit]').should('be.disabled');
 
             cy.get('input[formControlName=name]').should('have.class', 'ng-invalid');
@@ -234,7 +240,6 @@ describe('Sessions', () => {
             // Arrange
             cy.login();
 
-            // On clique sur Detail du cours créé
             cy.contains('mat-card', 'Nouveau cours').within(() => {
                 cy.contains('button', 'Edit').click();
             });
@@ -242,7 +247,6 @@ describe('Sessions', () => {
             cy.wait('@detail');
             cy.wait('@teachers');
 
-            // Intercept du PUT
             cy.intercept('PUT', '/api/session/99', {
                 statusCode: 200,
                 body: {
@@ -255,12 +259,12 @@ describe('Sessions', () => {
                 },
             }).as('update');
 
-            // Liste après update (optionnel mais propre)
+            // Intercept GET after update
             cy.intercept('GET', '/api/session*', {
                 fixture: 'sessions-after-update.json',
             }).as('sessions-after-update');
 
-            // Act : on modifie un champ
+            // Act
             cy.get('input[formControlName=name]').clear().type('Cours modifié');
 
             cy.get('textarea[formControlName=description]')
@@ -278,6 +282,23 @@ describe('Sessions', () => {
             cy.wait('@sessions-after-update');
             cy.contains('Cours modifié').should('be.visible');
         });
+
+        it('should keep the submit button disabled when a required field is missing', () => {
+            cy.login();
+
+            cy.contains('mat-card', 'Nouveau cours')
+                .within(() => {
+                    cy.contains('button', 'Edit').click();
+                });
+
+            cy.wait('@detail');
+            cy.wait('@teachers');
+
+            cy.get('input[formControlName=name]').clear();
+            cy.get('button[type=submit]').should('be.disabled');
+            cy.get('input[formControlName=name]').should('have.class', 'ng-invalid');
+        });
+
     });
 
     describe('Delete', () => {
@@ -322,8 +343,9 @@ describe('Sessions', () => {
 
             // Act
             cy.contains('button', 'Delete').click();
+            cy.wait('@delete');
 
-            // Assert
+            // Assert: After deletion, user is redirected to the sessions list
             cy.url().should('include', '/sessions');
             cy.contains('Session deleted !').should('be.visible');
 
