@@ -185,7 +185,7 @@ npm run test:watch
 
 ```bash
 cd front
-npm run test:coverage
+npm run test --coverage
 ```
 
 The main report is available at:
